@@ -20,7 +20,6 @@ import matplotlib.pyplot as plt
 from torch import nn
 from skimage.transform import resize, rescale, downscale_local_mean
 from scipy.ndimage import rotate as rotate_image
-# from matplotlib import pylab as plt
 from torch.utils.data import DataLoader
 from sklearn import preprocessing        #pip install scikit-learn
 from parameters import MetaParameters
@@ -52,7 +51,6 @@ class ReadImages():
         return img.header.get_zooms()
 
     def view_matrix(self):
-        # np.set_printoptions(threshold=sys.maxsize)
         return np.array(self.get_nii().dataobj)
 
     def get_file_list(self):
@@ -192,10 +190,11 @@ class PreprocessData(MetaParameters):
 
 class EvalPreprocessData(MetaParameters):
 
-    def __init__(self, images = None, masks = None):         
+    def __init__(self, images = None, masks = None, templates = None):         
         super(MetaParameters, self).__init__()
         self.images = images
         self.masks = masks
+        self.templates = templates
 
     def presegmentation_tissues(self, def_coord, gap_1=None, close_crop=None):
         list_top, list_bot, list_left, list_right = [], [], [], []
@@ -262,7 +261,10 @@ class EvalPreprocessData(MetaParameters):
         images = self.images[center_row - gap: center_row + gap, center_column - gap: center_column + gap, :]
         masks = self.masks[center_row - gap: center_row + gap, center_column - gap: center_column + gap, :]
 
-        return images, masks, [center_row, center_column]
+        if self.templates is not None:
+            templates = self.templates[center_row - gap: center_row + gap, center_column - gap: center_column + gap, :]
+
+        return images, masks, templates, [center_row, center_column]
 
 
 class ViewData():
